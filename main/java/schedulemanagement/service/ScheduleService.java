@@ -1,12 +1,9 @@
 package schedulemanagement.service;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import schedulemanagement.dto.CreateScheduleRequest;
-import schedulemanagement.dto.CreateScheduleResponse;
-import schedulemanagement.dto.GetScheduleResponse;
+import schedulemanagement.dto.*;
 import schedulemanagement.entity.Schedule;
 import schedulemanagement.repository.ScheduleRepository;
 
@@ -40,21 +37,88 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetScheduleResponse> getAllSchedule(String name) {
-        List<Schedule> schedules = scheduleRepository.findByName(name);
-
+    public List<GetScheduleResponse> findAllSchedule(String userName) {
+        List<Schedule> findName = scheduleRepository.findAllByNameOrderByModifiedAtDesc(userName);
         List<GetScheduleResponse> dtos = new ArrayList<>();
-        for (Schedule schedule : schedules) {
-            GetScheduleResponse dto = new GetScheduleResponse(
-                    schedule.getId(),
-                    schedule.getTitle(),
-                    schedule.getContents(),
-                    schedule.getName(),
-                    schedule.getCreatedAt(),
-                    schedule.getModifiedAt()
-            );
-            dtos.add(dto);
+        List<Schedule> schedules = scheduleRepository.findAllByOrderByModifiedAtDesc();
+
+        if (findName.isEmpty()) {
+            for (Schedule schedule : schedules) {
+                GetScheduleResponse dto = new GetScheduleResponse(
+                        schedule.getId(),
+                        schedule.getTitle(),
+                        schedule.getContents(),
+                        schedule.getName(),
+                        schedule.getCreatedAt(),
+                        schedule.getModifiedAt()
+                );
+                dtos.add(dto);
+            }
+            return dtos;
+        }else {
+            for (Schedule schedule : findName) {
+                GetScheduleResponse dto = new GetScheduleResponse(
+                        schedule.getId(),
+                        schedule.getTitle(),
+                        schedule.getContents(),
+                        schedule.getName(),
+                        schedule.getCreatedAt(),
+                        schedule.getModifiedAt()
+                );
+                dtos.add(dto);
+            }
+            return dtos;
         }
-        return dtos;
+    }
+
+    @Transactional(readOnly = true)
+    public GetScheduleResponse findOneSchedule(Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new IllegalArgumentException("없는 일정입니다.")
+        );
+
+        return new GetScheduleResponse(
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContents(),
+                schedule.getName(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt()
+        );
+    }
+
+    @Transactional
+    public UpdateScheduleResponse updateSchedule(Long scheduleId, UpdateScheduleRequest request) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new IllegalArgumentException("없는 일정입니다.")
+        );
+        schedule.update(
+                request.getTitle(),
+                request.getName(),
+                request.getPassword()
+        );
+
+        if (!request.getPassword().equals(schedule.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        return new UpdateScheduleResponse(
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getName(),
+                schedule.getModifiedAt()
+        );
+    }
+
+    @Transactional
+    public void deleteSchedule(long scheduleId, DeleteScheduleRequest request) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new IllegalArgumentException("없는 일정입니다.")
+        );
+
+        if (!request.getPassword().equals(schedule.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+        scheduleRepository.deleteById(scheduleId);
     }
 }
