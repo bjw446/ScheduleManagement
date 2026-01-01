@@ -1,24 +1,22 @@
 package schedulemanagement.service;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import schedulemanagement.dto.*;
+import schedulemanagement.entity.Comment;
 import schedulemanagement.entity.Schedule;
+import schedulemanagement.repository.CommentRepository;
 import schedulemanagement.repository.ScheduleRepository;
-
 import java.util.ArrayList;
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
-
     private final ScheduleRepository scheduleRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public CreateScheduleResponse save(CreateScheduleRequest request) {
-
         Schedule schedule = new Schedule(
                 request.getTitle(),
                 request.getContents(),
@@ -72,18 +70,19 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public GetScheduleResponse findOneSchedule(Long scheduleId) {
+    public GetScheduleCommentResponse findOneSchedule(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
                 () -> new IllegalArgumentException("없는 일정입니다.")
         );
-
-        return new GetScheduleResponse(
+        List<GetCommentResponse> comments = responseComments(scheduleId);
+        return new GetScheduleCommentResponse(
                 schedule.getId(),
                 schedule.getTitle(),
                 schedule.getContents(),
                 schedule.getName(),
                 schedule.getCreatedAt(),
-                schedule.getModifiedAt()
+                schedule.getModifiedAt(),
+                comments
         );
     }
 
@@ -101,7 +100,6 @@ public class ScheduleService {
         if (!request.getPassword().equals(schedule.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
-
         return new UpdateScheduleResponse(
                 schedule.getId(),
                 schedule.getTitle(),
@@ -120,5 +118,22 @@ public class ScheduleService {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         scheduleRepository.deleteById(scheduleId);
+    }
+
+    @Transactional
+    public List<GetCommentResponse> responseComments(Long scheduleId) {
+        List<Comment> comments = commentRepository.findAllByScheduleId(scheduleId);
+        List<GetCommentResponse> dtos = new ArrayList<>();
+        for (Comment comment : comments) {
+            GetCommentResponse dto = new GetCommentResponse(
+                    comment.getId(),
+                    comment.getContents(),
+                    comment.getName(),
+                    comment.getCreatedAt(),
+                    comment.getModifiedAt()
+            );
+            dtos.add(dto);
+        }
+        return dtos;
     }
 }

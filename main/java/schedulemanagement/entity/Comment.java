@@ -3,35 +3,33 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
-
-@Getter
 @Entity
-@Table(name = "schedules")
+@Getter
+@Table(name = "comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Schedule extends BaseEntity{
+public class Comment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
     private String contents;
     private String name;
     private String password;
-    @OneToMany(mappedBy = "schedule")
-    private List<Comment> comments = new ArrayList<>();
 
-    public Schedule(String title, String contents, String name, String password) {
-        this.title = title;
+    @ManyToOne
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
+
+    public Comment(String contents, String name, String password, Schedule schedule) {
         this.contents = contents;
         this.name = name;
         this.password = password;
+        this.schedule = schedule;
     }
 
-    public void update(String title, String name, String password) {
-        this.title = title;
+    public void updateComment(String contents, String name, String password, Schedule schedule) {
+        this.contents = contents;
         this.name = name;
         this.password = password;
+        this.schedule = schedule;
     }
 }
