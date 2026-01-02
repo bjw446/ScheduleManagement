@@ -26,7 +26,7 @@
 ### 등록
 - Request - 요청
 - Method: POST
-- URL: {{baseURL2}}/schedules
+- URL: {{http://localhost:8080}}/schedules
 - Content-Type: application/json
 - Body:
 
@@ -58,7 +58,7 @@ Response
 ### 전체 조회
 - Request - 요청
 - Method: GET
-- URL: {{baseURL2}}/schedules
+- URL: {{http://localhost:8080}}/schedules
 Response
 - Status Code: 200 OK
 - Body:
@@ -79,7 +79,7 @@ Response
 ### 삭제
 - Request - 요청
 - Method: DELETE
-- URL: {{baseURL2}}/schedules/{id}
+- URL: {{http://localhost:8080}}/schedules/{id}
 - Path Parameters:
 키 : id / 값 : 1
 
@@ -89,7 +89,7 @@ Response
 ### 일정 수정
 - Request - 요청
 - Method: PUT
-- URL: {{baseURL2}}/schedules/{id}
+- URL: {{http://localhost:8080}}/schedules/{id}
 - Path Parameters:
 키 : id / 값 : 1
 - Content-Type: application/json
@@ -120,7 +120,7 @@ Response
 ### 특정 일정 조회
 - Request - 요청
 - Method: GET
-- URL: {{baseURL2}}/schedules/{id}
+- URL: {{http://localhost:8080}}/schedules/{id}
 - Path Parameters:
 키 : id / 값 : 1
 - Response
