@@ -146,3 +146,34 @@ Response
 	]
 }
 ```
+
+## ERD 작성
+
+```
+Project schedulemanagement {
+  database_type: "MySQL"
+}
+
+Table schedules {
+  id bigint [pk, increment] // Primary Key
+  title varchar
+  contents text
+  name varchar
+  password varchar
+  created_at datetime
+  modified_at datetime
+}
+
+Table comments {
+  id bigint [pk, increment] // Primary Key
+  contents text
+  name varchar
+  password varchar
+  schedule_id bigint [ref: > schedules.id] // Foreign Key
+  created_at datetime
+  modified_at datetime
+}
+```
+
+<img width="818" height="445" alt="image" src="https://github.com/user-attachments/assets/131f7209-158b-4631-bd28-a57b1108eace" />
+
